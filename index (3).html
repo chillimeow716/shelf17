@@ -1,0 +1,1045 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>第十七號書架</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&family=LXGW+WenKai+TC:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a kiosk dossier desk. File drawer (grouped by chapter) on the left, the open document on the blotter in the middle, the iron box with five chapter locks on the right. One committed dark look. */
+:root{
+  --desk:#13161B; --panel:#1B2027; --panel-2:#252B34; --line:#363E49;
+  --text:#E9E4D8; --muted:#A4A9B0; --faint:#6E747C;
+  --paper:#EFE8D8; --paper-edge:#D6CAB0; --ink:#23201A; --ink-soft:#5B5346; --pen:#2B4B8C; --stamp:#B23A2B;
+  --amber:#E2AE4A; --ok:#7DBA8B; --bad:#E5806A; --scrim:rgba(9,11,14,.9); --shadow:rgba(0,0,0,.45);
+  --f-display:'Noto Serif TC','Songti TC','PMingLiU',serif;
+  --f-body:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;
+  --f-hand:'LXGW WenKai TC','Kaiti TC','DFKai-SB',serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,'Consolas',monospace;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--desk);color:var(--text);font-family:var(--f-body);font-size:17px;line-height:1.6}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:default}
+button:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.app{height:100%;box-sizing:border-box;display:grid;grid-template-rows:auto minmax(0,1fr);gap:12px;padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* header */
+.bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.seal{width:52px;height:52px;flex:none;border:2px solid var(--stamp);color:var(--stamp);background:transparent;font-family:var(--f-display);font-weight:900;font-size:24px;display:grid;place-items:center;transform:rotate(-6deg)}
+.brand h1{margin:0;font-family:var(--f-display);font-weight:900;font-size:28px;line-height:1.1;letter-spacing:.06em}
+.brand p{margin:3px 0 0;font-size:14px;color:var(--amber);letter-spacing:.1em}
+.stats{display:flex;flex-wrap:wrap;gap:8px}
+.stat{background:var(--panel);border:1px solid var(--line);padding:6px 14px;display:flex;flex-direction:column;min-width:84px}
+.stat span{font-size:12px;color:var(--muted);letter-spacing:.1em}
+.stat b{font-family:var(--f-mono);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* desk */
+.desk{display:grid;grid-template-columns:240px minmax(0,1fr) 380px;gap:12px;min-height:0}
+.drawer,.viewer,.safe{min-height:0;overflow:auto;background:var(--panel);border:1px solid var(--line)}
+.drawer{padding:12px;display:flex;flex-direction:column;gap:6px}
+.drawer h2,.safe h2{margin:0 0 4px;font-size:13px;letter-spacing:.18em;color:var(--muted);font-weight:500}
+.ch-head{margin:10px 0 2px;font-size:12px;letter-spacing:.14em;color:var(--faint)}
+.ch-head.open{color:var(--amber)}
+.file{display:flex;align-items:center;gap:12px;min-height:52px;width:100%;text-align:left;background:transparent;border:1px solid var(--line);padding:6px 10px}
+.file .tab{width:34px;height:34px;flex:none;display:grid;place-items:center;font-family:var(--f-mono);font-weight:600;background:var(--paper);color:var(--ink)}
+.file .name{flex:1;min-width:0;font-size:15px;line-height:1.35}
+.file .badge{font-size:11px;font-weight:700;color:#1A1406;background:var(--amber);padding:1px 6px;flex:none}
+.file.visited .badge{display:none}
+.file[aria-current="true"]{background:var(--panel-2);border-color:var(--amber)}
+.file:disabled{opacity:.42;border-style:dashed}
+.file:disabled .tab{background:var(--line);color:var(--muted)}
+.file:disabled .badge{display:none}
+.file.locked .tab{background:var(--stamp);color:var(--paper)}
+.viewer{padding:22px;background:var(--panel-2)}
+.doc-src{max-width:780px;margin:12px auto 0;font-size:13px;color:var(--muted)}
+.fiction{font-size:12px;color:var(--muted);text-align:center;margin-top:18px}
+
+/* paper */
+.paper{background:var(--paper);color:var(--ink);max-width:780px;margin-inline:auto;padding:30px 34px;box-shadow:0 1px 0 var(--paper-edge),0 14px 34px var(--shadow);box-sizing:border-box}
+.paper h3{font-family:var(--f-display);font-weight:900;margin:0 0 10px;line-height:1.35;text-wrap:balance}
+.paper p{margin:0 0 10px}
+.redact{background:var(--ink);color:var(--ink);padding:0 .15em;user-select:none;-webkit-user-select:none}
+.hand{font-family:var(--f-hand)}
+.label{font-size:12px;letter-spacing:.16em;color:var(--ink-soft)}
+
+/* A newspaper */
+.news-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:4px double var(--ink);padding-bottom:10px;margin-bottom:18px;gap:12px;flex-wrap:wrap}
+.masthead{font-family:var(--f-display);font-weight:900;font-size:40px;letter-spacing:.4em}
+.issue{font-family:var(--f-display);font-size:14px;text-align:right}
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;font-family:var(--f-display);font-size:16px;line-height:1.85}
+.cols h3{font-size:21px}
+.overdue{list-style:none;margin:0 0 10px;padding:6px 0;border-block:1px solid var(--ink-soft)}
+.margin-note{font-family:var(--f-hand);color:var(--pen);font-size:20px;margin-top:18px}
+
+/* B diary */
+.diary{font-family:var(--f-hand);font-size:19px;line-height:44px;background-image:repeating-linear-gradient(var(--paper) 0 43px,#B9C8DC 43px 44px);padding-left:64px;border-left:2px solid #D79A92}
+.diary h3{font-family:var(--f-display);font-size:22px;line-height:44px;margin:0}
+.diary .d{font-weight:700;margin-right:10px}
+
+/* C forum */
+.forum{padding:0;overflow:hidden}
+.forum-top{background:#2F3B4C;color:#F2F2F2;padding:12px 20px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.forum-top b{font-size:18px}
+.forum-title{padding:14px 20px;font-weight:700;border-bottom:1px solid var(--paper-edge)}
+.post{padding:14px 20px;border-bottom:1px solid var(--paper-edge)}
+.post:last-child{border-bottom:0}
+.post p{margin:4px 0 0}
+.post .meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:14px;color:var(--ink-soft)}
+.post .user{font-family:var(--f-mono);font-weight:600;color:#2C5C8E}
+.post .anon{color:var(--ink-soft);font-weight:600}
+.post .time{font-family:var(--f-mono)}
+
+/* D card */
+.card-wrap{display:flex;flex-direction:column;gap:12px;max-width:780px;margin-inline:auto}
+.libcard{background:#F2E4BF;color:var(--ink);border:1px solid #BFA978;padding:20px 22px;font-family:var(--f-display)}
+.libcard .row{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-soft)}
+.libcard .title{font-size:24px;font-weight:900;margin:6px 0}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid #8B7A55;border-left:1px solid #8B7A55;font-size:15px}
+.grid3>div{border-right:1px solid #8B7A55;border-bottom:1px solid #8B7A55;padding:6px 8px}
+.smear{display:inline-block;background:#7D6A48;color:#7D6A48;border-radius:6px;filter:blur(1px);padding:0 .3em;user-select:none;-webkit-user-select:none}
+.flip{align-self:flex-start;min-height:48px;padding:8px 18px;background:var(--paper);color:var(--ink);border:0;font-weight:700}
+.register{width:100%;border-collapse:collapse;font-size:15px}
+.register th,.register td{border:1px solid #9A9180;padding:7px 9px;text-align:left}
+.register td.h{font-family:var(--f-hand);font-size:18px}
+.tbl{overflow-x:auto}
+
+/* E transcript */
+.wave{display:flex;align-items:center;gap:3px;height:36px;margin:8px 0 16px}
+.wave i{display:block;width:4px;background:var(--ink-soft)}
+.line{display:grid;grid-template-columns:62px minmax(0,1fr);gap:10px;padding:6px 0;border-bottom:1px dashed var(--paper-edge)}
+.line .t{font-family:var(--f-mono);font-size:13px;color:var(--ink-soft);padding-top:3px}
+
+/* F photo */
+.photo{background:#F7F5F0;padding:16px 16px 56px;max-width:640px;margin:0 auto;box-shadow:0 14px 34px var(--shadow);transform:rotate(-1deg);color:var(--ink)}
+.photo svg{display:block;width:100%;height:auto}
+.photo .cap{font-family:var(--f-hand);font-size:20px;text-align:center;margin-top:12px}
+.exif-btn{display:block;margin:18px auto 0;min-height:48px;padding:8px 20px;background:transparent;border:1px solid var(--amber);color:var(--amber)}
+.exif{max-width:640px;margin:14px auto 0;background:var(--panel);border:1px solid var(--line);font-family:var(--f-mono);font-size:14px}
+.exif div{display:grid;grid-template-columns:150px minmax(0,1fr);border-bottom:1px solid var(--line);padding:8px 14px;gap:10px}
+.exif div:last-child{border-bottom:0}
+.exif span{color:var(--muted)}
+.chat{max-width:640px;margin:18px auto 0;display:flex;flex-direction:column;gap:8px}
+.bubble{max-width:80%;padding:10px 14px;font-size:16px;line-height:1.55}
+.bubble.them{background:var(--panel);border:1px solid var(--line);align-self:flex-start}
+.bubble.me{background:#2E4A3A;align-self:flex-end}
+.bubble small{display:block;font-size:12px;color:var(--muted);margin-bottom:2px}
+
+/* G map */
+.map{display:grid;grid-template-columns:minmax(0,1fr) 40px;border:3px solid var(--ink);background:#FFFFFF;color:var(--ink)}
+.shelves{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;padding:16px}
+.shelves div{border:1.5px solid var(--ink);height:48px;display:grid;place-items:center;font-family:var(--f-mono);font-weight:600;font-size:14px}
+.window{background:#CFE0EE;border-left:3px solid var(--ink);writing-mode:vertical-rl;display:grid;place-items:center;letter-spacing:.6em;font-size:14px}
+.floor{display:flex;gap:10px;padding:0 16px 16px}
+.floor div{border:1.5px dashed var(--ink-soft);height:70px;flex:1;display:grid;place-items:center;font-size:14px;color:var(--ink-soft)}
+.classtbl{width:100%;border-collapse:collapse;font-size:15px;margin-top:16px}
+.classtbl th,.classtbl td{border:1px solid #9A9180;padding:7px 10px;text-align:left}
+
+/* H book */
+.book{max-width:560px;font-family:var(--f-display);font-size:20px;line-height:2.1;padding:40px 44px}
+.book-lines{overflow-x:auto}
+.book-line{white-space:nowrap}
+.book .pg{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-soft);border-bottom:1px solid var(--paper-edge);margin-bottom:16px;line-height:1.6;padding-bottom:6px}
+.pager{display:flex;justify-content:center;align-items:center;gap:14px;margin-top:16px}
+.pager button{min-height:48px;min-width:110px;background:var(--panel);border:1px solid var(--line)}
+.pager button:disabled{opacity:.4}
+.pager span{font-family:var(--f-mono);color:var(--muted)}
+
+/* I calendar */
+.cals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.cal{width:100%;border-collapse:collapse;font-family:var(--f-mono);font-size:14px;table-layout:fixed}
+.cal caption{font-family:var(--f-display);font-weight:900;font-size:20px;text-align:left;padding-bottom:8px}
+.cal th{font-family:var(--f-body);font-weight:700;padding:4px;border-bottom:2px solid var(--ink)}
+.cal td{vertical-align:top;height:52px;border:1px solid var(--paper-edge);padding:3px 5px}
+.cal td.we{background:#E3DACA}
+.cal td.off{background:#F0D3CC}
+.cal .ev{display:block;font-family:var(--f-body);font-size:11px;line-height:1.25;color:var(--stamp);font-weight:700}
+
+/* J note */
+.note{max-width:460px;background:#FFF3A6;color:var(--ink);transform:rotate(-1.5deg);box-shadow:4px 6px 0 #C9BB55;font-family:var(--f-hand);font-size:22px;line-height:1.9;padding:30px 34px;margin-inline:auto}
+.note .codes{font-family:var(--f-mono);font-size:22px;letter-spacing:.06em;margin:10px 0}
+
+/* K postcard */
+.postcard{max-width:720px;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:24px;background:#F6F0E1;padding:26px 28px}
+.postcard .msg-side{font-family:var(--f-hand);font-size:19px;line-height:1.95;border-right:1px solid var(--paper-edge);padding-right:22px}
+.postcard .addr{display:flex;flex-direction:column;gap:14px}
+.stamp-box{align-self:flex-end;width:74px;height:90px;border:2px dashed var(--ink-soft);display:grid;place-items:center;font-size:12px;color:var(--ink-soft);text-align:center}
+.postmark{align-self:flex-end;width:96px;height:96px;border-radius:50%;border:2px solid var(--stamp);color:var(--stamp);display:grid;place-items:center;text-align:center;font-family:var(--f-mono);font-size:12px;line-height:1.4;transform:rotate(-12deg);margin-top:-60px}
+.addr-line{border-bottom:1px solid var(--ink-soft);font-family:var(--f-hand);font-size:20px;padding-bottom:4px}
+
+/* safe */
+.safe{padding:12px;display:flex;flex-direction:column;gap:10px}
+.lock-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.lock-tab{min-height:58px;background:transparent;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:14px;padding:4px}
+.lock-tab small{font-size:11px;color:var(--muted)}
+.lock-tab[aria-selected="true"]{border-color:var(--amber);background:var(--panel-2)}
+.lock-tab.done{border-color:var(--ok)}
+.lock-tab.done small{color:var(--ok)}
+.lock-tab:disabled{opacity:.4;border-style:dashed}
+.lock{display:flex;flex-direction:column;gap:12px;background:var(--panel-2);border:1px solid var(--line);padding:16px}
+.lock .chap{font-size:12px;letter-spacing:.16em;color:var(--amber)}
+.lock h3{margin:0;font-family:var(--f-display);font-size:21px;line-height:1.4;text-wrap:balance}
+.lock .q{margin:0;color:var(--muted);font-size:15px}
+.choices{display:grid;gap:6px}
+.shelf-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+.week-grid{grid-template-columns:repeat(7,minmax(0,1fr))}
+.chip{min-height:50px;background:var(--panel);border:1px solid var(--line);padding:6px 8px;text-align:left;line-height:1.4}
+.shelf-grid .chip,.week-grid .chip{text-align:center;font-family:var(--f-mono);font-size:15px;padding:4px}
+.week-grid .chip{font-family:var(--f-body);font-size:18px}
+.chip[aria-pressed="true"]{border-color:var(--amber);background:#3A3220;color:#FFF3D6}
+.claims .chip{font-size:15px}
+.codebox{display:flex;gap:8px;justify-content:center}
+.codebox span{width:52px;height:60px;border:2px solid var(--line);display:grid;place-items:center;font-family:var(--f-mono);font-size:30px;font-weight:600;background:var(--panel)}
+.keypad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.keypad button{min-height:54px;background:var(--panel);border:1px solid var(--line);font-family:var(--f-mono);font-size:22px}
+.go{min-height:54px;background:var(--amber);color:#1A1406;border:0;font-weight:700;font-size:18px;padding:8px 24px}
+.go:disabled{background:var(--line);color:var(--muted)}
+.msg{min-height:1.6em;margin:0;font-size:15px}
+.msg.bad{color:var(--bad)}
+.msg.ok{color:var(--ok)}
+.hint-btn{min-height:46px;background:transparent;border:1px dashed var(--muted);color:var(--muted)}
+.hints{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.hints li{background:var(--panel);padding:8px 12px;font-size:15px;border:1px solid var(--line)}
+.hints li b{color:var(--amber);font-family:var(--f-mono);margin-right:6px}
+.solved-banner{border:1px solid var(--ok);color:var(--ok);padding:10px 12px;font-weight:700}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.flicker{animation:flicker 1.2s}
+@keyframes flicker{0%,100%{opacity:1}10%{opacity:.2}14%{opacity:1}40%{opacity:.6}44%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.shake,.flicker{animation:none}}
+
+/* overlays */
+.overlay{position:fixed;inset:0;z-index:50;background:var(--scrim);overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding-top:max(24px,env(safe-area-inset-top,0px));padding-bottom:max(24px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.sheet{width:100%;max-width:760px;margin-block:auto;box-sizing:border-box}
+.dark-sheet{background:var(--panel);border:1px solid var(--line);padding:30px 32px;display:flex;flex-direction:column;gap:16px}
+.dark-sheet h2{margin:0;font-family:var(--f-display);font-weight:900;font-size:34px;line-height:1.25;text-wrap:balance}
+.dark-sheet p{margin:0}
+.kicker{font-size:13px;letter-spacing:.2em;color:var(--muted)}
+.rules{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px}
+.btn-row button{min-height:54px}
+.btn-ghost{background:transparent;border:1px solid var(--line);padding:8px 24px}
+.restart{min-height:56px;padding:6px 16px;color:var(--muted)}
+.memo{font-family:var(--f-hand);font-size:21px;line-height:1.95;padding:36px 40px}
+.memo p{margin:0 0 12px}
+.memo .sign{text-align:right}
+.newdocs{display:flex;flex-wrap:wrap;gap:8px}
+.newdocs span{border:1px solid var(--amber);color:var(--amber);padding:4px 10px;font-size:15px}
+.letter .card{border:1.5px dashed var(--ink-soft);padding:12px 16px;margin:8px 0 16px}
+.ps{color:var(--ink-soft)}
+.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.summary div{background:var(--panel-2);border:1px solid var(--line);padding:12px 14px;display:flex;flex-direction:column}
+.summary span{font-size:13px;color:var(--muted)}
+.summary b{font-family:var(--f-mono);font-size:28px;font-variant-numeric:tabular-nums}
+.big-count{font-family:var(--f-mono);font-size:56px;color:var(--amber);text-align:center}
+
+/* responsive */
+@media (max-width:1180px){
+  html,body{height:auto}
+  .app{height:auto}
+  .desk{grid-template-columns:220px minmax(0,1fr)}
+  .drawer,.viewer,.safe{overflow:visible}
+  .safe{grid-column:1/-1}
+}
+@media (max-width:760px){
+  .desk{grid-template-columns:minmax(0,1fr)}
+  .viewer{padding:12px}
+  .paper{padding:22px 18px}
+  .cols,.cals,.postcard{grid-template-columns:minmax(0,1fr)}
+  .postcard .msg-side{border-right:0;padding-right:0}
+  .diary{padding-left:24px}
+  .book{padding:26px 18px;font-size:18px}
+  .summary{grid-template-columns:minmax(0,1fr)}
+  .memo{padding:26px 20px;font-size:18px}
+  .lock-tabs{grid-template-columns:repeat(5,minmax(0,1fr))}
+}
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header class="bar">
+    <div class="brand">
+      <button class="seal" id="seal" aria-label="檔案章">案</button>
+      <div>
+        <h1>第十七號書架</h1>
+        <p id="chapter-name">序章</p>
+      </div>
+    </div>
+    <div class="stats" aria-live="polite">
+      <div class="stat"><span>調查時間</span><b id="st-time">00:00</b></div>
+      <div class="stat"><span>已解開</span><b id="st-locks">0/5</b></div>
+      <div class="stat"><span>提示</span><b id="st-hints">0</b></div>
+      <div class="stat"><span>答錯</span><b id="st-errors">0</b></div>
+      <button class="btn-ghost restart" id="restart">重新開始</button>
+    </div>
+  </header>
+
+  <main class="desk">
+    <nav class="drawer" aria-label="檔案櫃">
+      <h2>檔案櫃</h2>
+      <div class="ch-head" data-chhead="0">第一章　三樓的聲音</div>
+      <button class="file" data-doc="B" data-ch="0"><span class="tab">B</span><span class="name">社團日誌</span><span class="badge">新</span></button>
+      <button class="file" data-doc="C" data-ch="0"><span class="tab">C</span><span class="name">校園留言板</span><span class="badge">新</span></button>
+      <button class="file" data-doc="I" data-ch="0"><span class="tab">I</span><span class="name">108 學年行事曆</span><span class="badge">新</span></button>
+      <div class="ch-head" data-chhead="1">第二章　那一排書架</div>
+      <button class="file" data-doc="E" data-ch="1"><span class="tab">E</span><span class="name">館員訪談逐字稿</span><span class="badge">新</span></button>
+      <button class="file" data-doc="A" data-ch="1"><span class="tab">A</span><span class="name">舊校刊剪報</span><span class="badge">新</span></button>
+      <button class="file" data-doc="D" data-ch="1"><span class="tab">D</span><span class="name">借書卡與登記簿</span><span class="badge">新</span></button>
+      <button class="file" data-doc="G" data-ch="1"><span class="tab">G</span><span class="name">三樓平面圖</span><span class="badge">新</span></button>
+      <div class="ch-head" data-chhead="2">第三章　還書之日</div>
+      <button class="file" data-doc="J" data-ch="2"><span class="tab">J</span><span class="name">夾在日誌裡的便條</span><span class="badge">新</span></button>
+      <button class="file" data-doc="H" data-ch="2"><span class="tab">H</span><span class="name">《山城夜話》殘頁</span><span class="badge">新</span></button>
+      <div class="ch-head" data-chhead="3">第四章　照片裡的人</div>
+      <button class="file" data-doc="F" data-ch="3"><span class="tab">F</span><span class="name">阿哲傳來的照片</span><span class="badge">新</span></button>
+      <div class="ch-head" data-chhead="4">第五章　寫下名字的人</div>
+      <button class="file" data-doc="K" data-ch="4"><span class="tab">K</span><span class="name">花蓮寄來的明信片</span><span class="badge">新</span></button>
+      <div class="ch-head open">番外</div>
+      <button class="file locked" data-doc="X" id="file-x"><span class="tab">X</span><span class="name" id="file-x-name">加密檔案（需借書線索卡）</span></button>
+    </nav>
+
+    <section class="viewer" id="viewer" aria-live="polite">
+
+      <article class="doc" id="doc-B">
+        <div class="paper diary">
+          <h3>社團日誌　108 學年度上學期</h3>
+          <div><span class="d">9/3</span>小芸說，放學後在三樓聽到翻書聲，大約六點半。那時候三樓應該沒人。</div>
+          <div><span class="d">9/12</span>我自己去了。六點四十，最裡面那排傳來「啪、啪」的翻頁聲。走過去，沒有人。書架頂上有幾個小小的、灰灰的印子。</div>
+          <div><span class="d">9/16</span>又去了一次。等了一整個傍晚，什麼聲音都沒有，安靜到聽得見自己的心跳。</div>
+          <div><span class="d">9/19</span>又聽到了。這次聲音停在第十<span class="redact">■</span>號書架附近。我站在那裡，突然很想哭，不知道為什麼。</div>
+          <div><span class="d">9/24</span>借書登記簿上出現一個名字：林<span class="redact">■■</span>。全校沒有這個人。（影本見資料 D）</div>
+          <div><span class="d">9/27</span>打電話給<span class="redact">■■</span>。她在電話那頭安靜了很久。</div>
+          <div><span class="d">10/1</span>留言板上有人說星期六也聽到。我覺得怪怪的。</div>
+          <div><span class="d">10/3</span>訪問了周伯。他講了很多以前的事。（見資料 E）</div>
+          <div><span class="d">10/17</span>阿哲說他拍到了「那個」，說會把照片傳給我。</div>
+          <div><span class="d">10/29</span><span class="redact">■■■■■■</span>，我決定把它放回去。</div>
+          <div style="text-align:right">——映秌</div>
+        </div>
+        <p class="doc-src">影本。部分字句被原作者用麥克筆塗黑。</p>
+      </article>
+
+      <article class="doc" id="doc-C" hidden>
+        <div class="paper forum">
+          <div class="forum-top"><b>夜話板｜本校匿名留言區</b><span>看板：怪談・靈異</span></div>
+          <div class="forum-title">【討論】圖書館三樓放學後的翻書聲（回應 7）</div>
+          <div class="post"><div class="meta"><span class="user">sann-lâu_ê_siann</span><span class="time">108/09/20 22:14</span></div><p>三樓最裡面那排真的有聲音，不是只有一個人聽到。</p></div>
+          <div class="post"><div class="meta"><span class="user">niau-á-kha</span><span class="time">108/09/25 21:03</span></div><p>書架上那些灰灰的印子很小，一顆一顆圓圓的，不像人的手。</p></div>
+          <div class="post"><div class="meta"><span class="user">àm-sî_sûn-tiûnn</span><span class="time">108/09/27 23:40</span></div><p>晚上在三樓走來走去的，不一定是鬼。你們有沒有注意過，聲音都出現在哪幾天？</p></div>
+          <div class="post"><div class="meta"><span class="user">tsa̍p-tshit</span><span class="time">108/09/29 00:12</span></div><p>去看那一排，就知道了。</p></div>
+          <div class="post"><div class="meta"><span class="anon">匿名</span><span class="time">108/10/01 19:55</span></div><p>聽說民國八十五年有個學姊死在三樓，所以她每天回來找那本書！！我星期六補習經過也有聽到！！</p></div>
+          <div class="post"><div class="meta"><span class="anon">匿名</span><span class="time">108/10/01 20:31</span></div><p>樓上的，你確定是學校圖書館？</p></div>
+          <div class="post"><div class="meta"><span class="anon">匿名</span><span class="time">108/10/18 12:30</span></div><p>社辦有人拍到了！！照片超清楚，書架旁邊站著一個人。</p></div>
+        </div>
+        <p class="doc-src">社員列印的網頁截圖。旁邊有鉛筆字：「這幾個帳號的名字不是英文。阿嬤念了一遍，說：這是咱的話啦。」</p>
+      </article>
+
+      <article class="doc" id="doc-I" hidden>
+        <div class="paper">
+          <h3 style="font-size:24px">108 學年度第一學期 行事曆（節錄）</h3>
+          <div class="cals" id="cals"></div>
+          <p style="margin-top:14px;font-size:14px;color:var(--ink-soft)">紅底為放假日，灰底為週末。</p>
+        </div>
+        <p class="doc-src">從學務處公布欄撕下來的，夾在日誌裡。</p>
+      </article>
+
+      <article class="doc" id="doc-E" hidden>
+        <div class="paper">
+          <h3 style="font-size:24px">怪談研究社 訪談紀錄 No.3</h3>
+          <div class="label">受訪者：周先生（圖書館館員，社員暱稱「周伯」）　訪問與整理：陳映秌</div>
+          <div class="label">時間：108 年 10 月 3 日 下午 5:30　地點：圖書館三樓閱覽區　錄音長度 02:20</div>
+          <div class="wave" aria-hidden="true" id="wave"></div>
+          <div class="line"><span class="t">00:05</span><span><b>映秌：</b>周伯在這裡多久了？</span></div>
+          <div class="line"><span class="t">00:09</span><span><b>周伯：</b>八十五年來的，二十幾年囉。今年做到年底就退休了。</span></div>
+          <div class="line"><span class="t">00:21</span><span><b>映秌：</b>同學說放學後三樓有翻書聲，您知道嗎？</span></div>
+          <div class="line"><span class="t">00:26</span><span><b>周伯：</b>（笑）知道啊。禮拜二、禮拜四我都留到七點整理書架，翻書、把書推回去，當然有聲音。還有阿花，館裡那隻貓，最愛在最裡面那排書架頂上走，腳底沾了灰，到處都是小印子。</span></div>
+          <div class="line"><span class="t">00:58</span><span><b>映秌：</b>那禮拜六呢？有人說禮拜六也聽到。</span></div>
+          <div class="line"><span class="t">01:03</span><span><b>周伯：</b>禮拜六圖書館不開，我也不在。誰說的？</span></div>
+          <div class="line"><span class="t">01:09</span><span><b>映秌：</b>……留言板上的。那，您記得一位叫林秋月的學姊嗎？</span></div>
+          <div class="line"><span class="t">01:16</span><span><b>周伯：</b>記得。很愛讀書的女孩子，每天放學都坐在臺灣文學區的窗邊。《山城夜話》是我推薦給她的。後來家裡突然搬去花蓮，她寫信說一定會把書寄回來，可是我一直沒收到。</span></div>
+          <div class="line"><span class="t">01:48</span><span><b>映秌：</b>最近登記簿上出現了她的名字。</span></div>
+          <div class="line"><span class="t">01:52</span><span><b>周伯：</b>我看到了。那個字跡是新的，墨水還很亮。寫的人，應該就在這間學校裡。</span></div>
+          <div class="line"><span class="t">02:03</span><span><b>映秌：</b>……我們先跳過這題。</span></div>
+          <div class="line"><span class="t">02:08</span><span><b>周伯：</b>（停頓）書如果回來了，就放回原來的位置吧。那一排，我一直幫它留著空位。</span></div>
+          <div class="line"><span class="t">02:20</span><span>〔錄音結束〕</span></div>
+        </div>
+      </article>
+
+      <article class="doc" id="doc-A" hidden>
+        <div class="paper">
+          <div class="news-head">
+            <div class="masthead">校刊</div>
+            <div class="issue">第一二七期<br>中華民國八十五年十一月十五日</div>
+          </div>
+          <div class="cols">
+            <section>
+              <h3>圖書館公告<br>逾期未還書籍名單</h3>
+              <p>本學期截至十一月十日止，仍有下列書籍逾期未歸還，請借閱同學盡速還書，以免影響其他同學權益：</p>
+              <ul class="overdue">
+                <li>《臺灣民間故事集》　一年三班</li>
+                <li>《山城夜話》　二年七班（已轉學）</li>
+                <li>《世界名著選讀》　三年一班</li>
+                <li>《星空下的旅人》　一年九班</li>
+              </ul>
+              <p>其中《山城夜話》為館內孤本，借閱同學已辦理轉學，圖書館已去函聯繫，盼能早日歸還。</p>
+            </section>
+            <section>
+              <h3>新進館員專訪<br>周先生：書架是會說話的</h3>
+              <p>本學期圖書館新來的周先生，每週二、週四都會留館到晚上七點整理書架。他說：「白天大家借書，晚上我把書放回去，書架才會安靜下來。」</p>
+              <p>周先生提到，二年七班的林同學是三樓的常客，總是坐在臺灣文學區的窗邊看書。「她上個月跟著家人搬到花蓮，走得很匆忙，連聲再見都來不及說。」</p>
+            </section>
+          </div>
+          <p class="margin-note">← 她沒有「死在三樓」，是轉學了。<br>　 那，書呢？　——映秌</p>
+        </div>
+        <p class="doc-src">社員在校史室影印，夾在社刊草稿第 3 頁。</p>
+      </article>
+
+      <article class="doc" id="doc-D" hidden>
+        <div class="card-wrap">
+          <div class="libcard" id="card-front">
+            <div class="row"><span>圖書館 借書卡</span><span>正面</span></div>
+            <div class="title">《山城夜話》</div>
+            <p style="margin:0 0 10px;font-size:16px">索書號　8<span class="smear">■</span>3.57　L<span class="smear">■■</span></p>
+            <div class="grid3">
+              <div><b>借書人</b></div><div><b>借出日</b></div><div><b>應還日</b></div>
+              <div class="hand" style="font-size:18px">二年七班 林秋月</div><div>85.10.21</div><div>85.<span class="smear">■■■■</span></div>
+            </div>
+            <p style="margin:8px 0 0;font-size:13px;color:var(--ink-soft)">應還日的印章被水暈開了，看不清楚。</p>
+          </div>
+          <div class="libcard" id="card-back" hidden>
+            <div class="row"><span>借閱須知</span><span>背面</span></div>
+            <ol style="margin:10px 0 0;padding-left:1.4em;line-height:1.9;font-size:16px">
+              <li>每次限借三冊。</li>
+              <li>借期十四天（含例假日），借出當日不計。</li>
+              <li>逾期每冊每日罰款一元。</li>
+              <li>借書時，借閱者須於登記簿親自簽名。</li>
+              <li>孤本書籍請愛惜，勿攜出校外。</li>
+            </ol>
+          </div>
+          <button class="flip" id="flip">翻到背面</button>
+        </div>
+        <div class="paper" style="margin-top:22px">
+          <div class="label" style="margin-bottom:8px">借書登記簿（三樓閱覽區）影本　108 年 9 月　第 12 頁</div>
+          <div class="tbl">
+            <table class="register">
+              <thead><tr><th>日期</th><th>姓名</th><th>書名</th><th>事由</th></tr></thead>
+              <tbody>
+                <tr><td>9/19</td><td class="h">王子翔</td><td class="h">臺灣民間故事集</td><td class="h">閱覽</td></tr>
+                <tr><td>9/20</td><td class="h">李佩珊</td><td class="h">星空下的旅人</td><td class="h">報告</td></tr>
+                <tr><td>9/23</td><td class="h" style="font-size:21px">林秌月</td><td class="h">山城夜話</td><td class="h">找書</td></tr>
+                <tr><td>9/24</td><td class="h">張育誠</td><td class="h">世界名著選讀</td><td class="h">閱覽</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <p class="doc-src">借書卡原本夾在資料夾裡，不知道是誰留著的。登記簿是社員影印的。</p>
+      </article>
+
+      <article class="doc" id="doc-G" hidden>
+        <div class="paper">
+          <h3 style="font-size:24px">圖書館 3F 書庫配置（108 年版）</h3>
+          <div class="map">
+            <div>
+              <div class="shelves" id="map-shelves"></div>
+              <div class="floor"><div style="flex:2">閱覽區</div><div>服務台</div><div>樓梯</div></div>
+            </div>
+            <div class="window">窗戶</div>
+          </div>
+          <div class="tbl">
+            <table class="classtbl">
+              <thead><tr><th>書架</th><th>分類號（中文圖書分類法）</th></tr></thead>
+              <tbody>
+                <tr><td>3-01 ～ 3-05</td><td>000–299　總類・哲學・宗教</td></tr>
+                <tr><td>3-06 ～ 3-10</td><td>300–799　科學・應用科學・社會科學・史地</td></tr>
+                <tr><td>3-11 ～ 3-14</td><td>800–859　語言・文學總論・中國文學</td></tr>
+                <tr><td>3-15 ～ 3-16</td><td>861　日本文學</td></tr>
+                <tr><td>3-17</td><td>863　臺灣文學</td></tr>
+                <tr><td>3-18 ～ 3-20</td><td>870–899　西洋文學・其他各國文學</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="margin-top:14px;font-size:15px">開放時間：週一至週五 7:30–19:00　週六、週日休館</p>
+        </div>
+        <p class="doc-src">取自圖書館公告欄。</p>
+      </article>
+
+      <article class="doc" id="doc-J" hidden>
+        <div class="note">
+          <p style="margin:0">她該回來的那一天，<br>藏在那本書裡，<br>也印在她的卡片上。</p>
+          <div class="codes">12-5-11<br>47-1-8<br>47-6-16<br>88-6-10</div>
+          <p style="margin:0;font-size:18px">頁－行－字。標點不算。</p>
+        </div>
+        <p class="doc-src" style="text-align:center">夾在社團日誌最後一頁的便條。字跡和日誌一樣。</p>
+      </article>
+
+      <article class="doc" id="doc-H" hidden>
+        <div class="paper book" id="book"></div>
+        <div class="pager"><button id="pg-prev">上一頁</button><span id="pg-no">1 / 3</span><button id="pg-next">下一頁</button></div>
+        <p class="doc-src" style="text-align:center">《山城夜話》只剩下三張殘頁，夾在資料夾最後面。</p>
+      </article>
+
+      <article class="doc" id="doc-F" hidden>
+        <figure class="photo">
+          <svg viewBox="0 0 600 400" role="img" aria-label="昏暗的書架走道，最裡面的書架旁有一個模糊的人影">
+            <defs><filter id="blur"><feGaussianBlur stdDeviation="7"></feGaussianBlur></filter></defs>
+            <rect width="600" height="400" fill="#17171A"></rect>
+            <rect x="470" y="40" width="90" height="230" fill="#33414F"></rect>
+            <rect x="470" y="40" width="90" height="230" fill="none" stroke="#0E0E10" stroke-width="6"></rect>
+            <polygon points="0,0 200,90 200,330 0,400" fill="#231F1C"></polygon>
+            <polygon points="600,0 420,90 420,330 600,400" fill="#1E1B19" opacity="0.6"></polygon>
+            <rect x="200" y="90" width="220" height="240" fill="#1F1C1A"></rect>
+            <g fill="#3A322B">
+              <rect x="210" y="100" width="12" height="44"></rect><rect x="226" y="104" width="10" height="40"></rect><rect x="240" y="98" width="14" height="46"></rect><rect x="258" y="102" width="9" height="42"></rect><rect x="300" y="100" width="13" height="44"></rect><rect x="318" y="96" width="11" height="48"></rect><rect x="350" y="102" width="12" height="42"></rect><rect x="380" y="98" width="14" height="46"></rect>
+              <rect x="210" y="160" width="13" height="44"></rect><rect x="228" y="164" width="10" height="40"></rect><rect x="270" y="158" width="12" height="46"></rect><rect x="290" y="162" width="11" height="42"></rect><rect x="335" y="160" width="12" height="44"></rect><rect x="390" y="158" width="13" height="46"></rect>
+              <rect x="212" y="222" width="11" height="44"></rect><rect x="240" y="220" width="13" height="46"></rect><rect x="300" y="224" width="12" height="42"></rect><rect x="356" y="220" width="14" height="46"></rect>
+            </g>
+            <g fill="#4A4036"><rect x="200" y="146" width="220" height="5"></rect><rect x="200" y="208" width="220" height="5"></rect><rect x="200" y="270" width="220" height="5"></rect></g>
+            <g filter="url(#blur)" fill="#D8D0C0" opacity="0.42"><ellipse cx="438" cy="150" rx="18" ry="22"></ellipse><rect x="420" y="168" width="38" height="140" rx="16"></rect></g>
+            <rect x="0" y="330" width="600" height="70" fill="#121214"></rect>
+            <text x="560" y="380" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="20" fill="#F0A33C">'19 10 17  18:42</text>
+          </svg>
+          <figcaption class="cap">108.10.17（四）18:42　三樓最裡面那排</figcaption>
+        </figure>
+        <button class="exif-btn" id="exif-btn" aria-expanded="false">查看檔案資訊</button>
+        <div class="exif" id="exif" hidden>
+          <div><span>檔案名稱</span>IMG_20211017_184233.jpg</div>
+          <div><span>拍攝日期</span>2021:10:17 18:42:33</div>
+          <div><span>拍攝裝置</span>手機（後鏡頭）</div>
+          <div><span>編輯軟體</span>修圖 App　圖層 ×3</div>
+          <div><span>最後修改</span>2021:10:18 00:51:07</div>
+        </div>
+        <div class="chat" aria-label="傳訊紀錄截圖">
+          <div class="bubble them"><small>阿哲　10/17 19:03</small>學姊！我拍到了！！三樓最裡面那排，有人站在書架旁邊</div>
+          <div class="bubble them"><small>阿哲　10/17 19:04</small>我發誓沒有修圖，回頭就看到了</div>
+          <div class="bubble me"><small>映秌　10/17 21:40</small>照片呢？</div>
+          <div class="bubble them"><small>阿哲　10/18 07:12</small>……手機昨天摔壞了，照片沒存到。我再拍一次給你</div>
+        </div>
+        <p class="doc-src">照片是資料夾裡唯一的電子檔。傳訊紀錄是列印下來的截圖。</p>
+      </article>
+
+      <article class="doc" id="doc-K" hidden>
+        <div class="paper postcard">
+          <div class="msg-side">
+            <p>小秌：</p>
+            <p>妳在電話裡說，周伯年底要退休了。</p>
+            <p>那本書在我的書櫃放了二十三年，每次搬家都帶著，卻一直不敢寄。好像只要它還在我這裡，那年夏天就還沒結束。</p>
+            <p>妳想替我還，就去吧。記得放回窗邊那一排。</p>
+            <p>替我跟周伯說，我還記得他推薦的每一本書。</p>
+            <p style="text-align:right">姑姑</p>
+          </div>
+          <div class="addr">
+            <div class="stamp-box">郵票</div>
+            <div class="postmark">花蓮<br>108.10.28<br>郵局</div>
+            <div class="addr-line">本市 ○○路 ○○ 號</div>
+            <div class="addr-line" style="font-size:24px">陳映秌　收</div>
+          </div>
+        </div>
+        <p class="doc-src">夾在資料夾封底的明信片。正面是花蓮的海。</p>
+      </article>
+
+      <article class="doc" id="doc-X" hidden>
+        <div class="paper">
+          <h3 style="font-size:24px">周伯的值班日誌（節錄）</h3>
+          <div class="label" style="margin-bottom:12px">圖書館館員值班紀錄　108 年 9–10 月</div>
+          <div class="hand" style="font-size:19px;line-height:2">
+            <p><b>9/3（二）</b>留館到七點。阿花又睡在 3-17 頂上。</p>
+            <p><b>9/12（四）</b>留館。三樓灰塵多，阿花的腳印到處都是。社團的孩子在樓梯口探頭探腦。</p>
+            <p><b>9/17（二）</b>留館。</p>
+            <p><b>9/19（四）</b>請假。帶阿花去打預防針。<br>傍晚回館裡拿鑰匙，三樓的燈是亮的。窗邊臺灣文學區的位子上，好像坐著一個綁辮子的女孩在翻書。我叫了一聲，燈就熄了。<br>那個位子，是秋月以前每天坐的地方。</p>
+            <p><b>9/24（二）</b>登記簿上有她的名字。字是新的。</p>
+            <p><b>10/30（三）</b>3-17 的空位，書回來了。我沒有問是誰放的。</p>
+          </div>
+        </div>
+        <p class="doc-src">番外檔案。你借了一本書，才看得到這一頁。</p>
+      </article>
+      <p class="fiction">本故事純屬虛構</p>
+    </section>
+
+    <aside class="safe" aria-label="鐵盒的五道鎖">
+      <h2>社辦鐵盒　五道鎖</h2>
+      <div class="lock-tabs" role="tablist">
+        <button class="lock-tab" role="tab" data-lock="0" aria-selected="true">一<small>調查中</small></button>
+        <button class="lock-tab" role="tab" data-lock="1" aria-selected="false" disabled>二<small>未開放</small></button>
+        <button class="lock-tab" role="tab" data-lock="2" aria-selected="false" disabled>三<small>未開放</small></button>
+        <button class="lock-tab" role="tab" data-lock="3" aria-selected="false" disabled>四<small>未開放</small></button>
+        <button class="lock-tab" role="tab" data-lock="4" aria-selected="false" disabled>五<small>未開放</small></button>
+      </div>
+
+      <section class="lock" data-lock="0">
+        <div class="chap">第一章　三樓的聲音</div>
+        <h3>日誌裡有人聽到翻書聲的日子，都是星期幾？</h3>
+        <p class="q">選出兩天，再按確認。</p>
+        <div class="choices week-grid" id="week-grid">
+          <button class="chip" data-v="1">一</button><button class="chip" data-v="2">二</button><button class="chip" data-v="3">三</button><button class="chip" data-v="4">四</button><button class="chip" data-v="5">五</button><button class="chip" data-v="6">六</button><button class="chip" data-v="0">日</button>
+        </div>
+        <button class="go" data-check="0">確認</button>
+        <p class="msg" data-msg="0"></p>
+        <button class="hint-btn" data-hint="0">看提示（會記錄次數）</button>
+        <ul class="hints" data-hints="0"></ul>
+      </section>
+
+      <section class="lock" data-lock="1" hidden>
+        <div class="chap">第二章　那一排書架</div>
+        <h3>《山城夜話》原本放在哪一個書架？</h3>
+        <p class="q">點選書架編號，再按確認。</p>
+        <div class="choices shelf-grid" id="shelf-grid"></div>
+        <button class="go" data-check="1">確認</button>
+        <p class="msg" data-msg="1"></p>
+        <button class="hint-btn" data-hint="1">看提示（會記錄次數）</button>
+        <ul class="hints" data-hints="1"></ul>
+      </section>
+
+      <section class="lock" data-lock="2" hidden>
+        <div class="chap">第三章　還書之日</div>
+        <h3>便條說的「那一天」，是幾月幾日？</h3>
+        <p class="q">輸入四位數：月月日日。</p>
+        <div class="codebox" id="code2"><span></span><span></span><span></span><span></span></div>
+        <div class="keypad" id="kp2"></div>
+        <button class="go" data-check="2">確認</button>
+        <p class="msg" data-msg="2"></p>
+        <button class="hint-btn" data-hint="2">看提示（會記錄次數）</button>
+        <ul class="hints" data-hints="2"></ul>
+      </section>
+
+      <section class="lock" data-lock="3" hidden>
+        <div class="chap">第四章　照片裡的人</div>
+        <h3>下面八條說法，有三條是假的。</h3>
+        <p class="q">選出剛好三條，再按確認。已選 <b id="claim-count">0</b> 條。</p>
+        <div class="choices claims" id="claims">
+          <button class="chip" data-v="t1">翻書聲大多出現在星期二和星期四的傍晚。</button>
+          <button class="chip" data-v="f1">民國八十五年，有一位學姊死在三樓。</button>
+          <button class="chip" data-v="t2">林秋月後來轉學去了花蓮。</button>
+          <button class="chip" data-v="f3">照片 F 是 108 年 10 月 17 日拍下的。</button>
+          <button class="chip" data-v="t3">登記簿上的名字，是最近才寫上去的。</button>
+          <button class="chip" data-v="f2">星期六放學後，三樓也傳出翻書聲。</button>
+          <button class="chip" data-v="t4">書架頂上的小灰印子，是貓留下的。</button>
+          <button class="chip" data-v="t5">《山城夜話》從民國八十五年起就沒有歸還。</button>
+        </div>
+        <button class="go" data-check="3">確認</button>
+        <p class="msg" data-msg="3"></p>
+        <button class="hint-btn" data-hint="3">看提示（會記錄次數）</button>
+        <ul class="hints" data-hints="3"></ul>
+      </section>
+
+      <section class="lock" data-lock="4" hidden>
+        <div class="chap">第五章　寫下名字的人</div>
+        <h3>登記簿上的「林秌月」，是誰寫的？</h3>
+        <p class="q">選一個人，再按確認。</p>
+        <div class="choices" id="suspects">
+          <button class="chip" data-v="lin">林秋月本人</button>
+          <button class="chip" data-v="chou">周伯（館員周先生）</button>
+          <button class="chip" data-v="zhe">阿哲（拍照片的社員）</button>
+          <button class="chip" data-v="yun">小芸（第一個聽到聲音的社員）</button>
+          <button class="chip" data-v="chen">陳映秌（社刊主編）</button>
+        </div>
+        <button class="go" data-check="4">確認</button>
+        <p class="msg" data-msg="4"></p>
+        <button class="hint-btn" data-hint="4">看提示（會記錄次數）</button>
+        <ul class="hints" data-hints="4"></ul>
+      </section>
+    </aside>
+  </main>
+</div>
+
+<div class="overlay" id="ov-intro">
+  <div class="sheet dark-sheet">
+    <p class="kicker">115 學年 ・ 怪談研究社</p>
+    <h2>第十七號書架</h2>
+    <p>今年整理社辦時，我們在鐵櫃最底層找到一個上了五道鎖的鐵盒，和一個資料夾。資料夾裡是 108 學年一份從沒出刊的社刊草稿，主題是「圖書館三樓放學後的翻書聲」。</p>
+    <p>主編是當年高三的陳映秌學姊。草稿第一頁只寫了一段話：</p>
+    <p class="hand" style="font-size:21px;color:var(--amber);line-height:1.8">「我沒有寫結論。哪些是真的、哪些不是，請你自己判斷。看懂一章，就打開一道鎖。」</p>
+    <p>我們試了一整個學期，打不開。現在交給你。</p>
+    <ol class="rules">
+      <li>調查分成五章。每解開一道鎖，檔案櫃會多出新的資料。</li>
+      <li>資料之間會互相矛盾。有些是真的，有些不是。</li>
+      <li>答錯會鎖住 10 秒。卡關可以看提示，每看一次會記錄下來。</li>
+      <li>把推理寫在紙本答案卡上，破關後交到櫃台。</li>
+      <li>在櫃台借一本書展的書，可以拿到「借閱者線索卡」，打開番外檔案。</li>
+    </ol>
+    <div class="btn-row"><button class="go" id="start">打開資料夾</button></div>
+    <p style="font-size:13px;color:var(--muted)">建議 2–3 人一組，約 20–30 分鐘。本故事純屬虛構。</p>
+  </div>
+</div>
+
+<div class="overlay" id="ov-memo" hidden>
+  <div class="sheet">
+    <div class="paper memo">
+      <p class="label" style="font-family:var(--f-body)" id="memo-kicker">編輯手記</p>
+      <div id="memo-body"></div>
+      <p class="sign">——映秌</p>
+    </div>
+    <div class="dark-sheet" style="margin-top:12px;gap:10px">
+      <p style="font-size:14px;color:var(--muted)">新資料已放進檔案櫃</p>
+      <div class="newdocs" id="memo-new"></div>
+      <div class="btn-row"><button class="go" id="memo-go">繼續調查</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="ov-letter" hidden>
+  <div class="sheet">
+    <div class="paper memo letter">
+      <p class="label" style="font-family:var(--f-body)">鐵盒打開了。裡面是一封信。</p>
+      <p>給打開鐵盒的你：</p>
+      <p>謝謝你一路找到這裡。先坦白：登記簿上的「林秌月」，是我寫的。我從小把「秋」寫成「秌」，是外婆教的。你大概早就發現了。</p>
+      <p>林秋月是我的姑姑。民國八十五年她搬去花蓮，《山城夜話》被一起裝進了箱子。她說一直想還，但越拖越不好意思，最後連信都寫不出來。我名字裡的「秌」，也是她取的。</p>
+      <p>聽說周伯年底就要退休。我想讓他知道，那個女孩沒有忘記。所以我把她的名字寫回登記簿，看看周伯會不會注意到。他注意到了，也猜到是我。</p>
+      <p>十月二十九日，姑姑的明信片寄到了。我把書放回第十七號書架，那個周伯一直留著的空位。這本書本來應該在十一月四日還，晚了二十三年。</p>
+      <div class="card">周伯：對不起，書晚了二十三年。謝謝你幫我留著位子。　——秋月</div>
+      <p>翻書聲是周伯和阿花。照片是後來才被放進資料夾的。「死在三樓」只是傳言。大部分的怪談，拆開來都是人。</p>
+      <p class="sign">陳映秌　108.10.30</p>
+      <p class="ps">P.S. 有一半的翻書聲，我解釋得了。<br>另一半，發生在周伯不在的日子。</p>
+    </div>
+    <div class="btn-row" style="margin-top:14px;justify-content:center"><button class="go" id="to-summary">看結算</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="ov-summary" hidden>
+  <div class="sheet dark-sheet">
+    <p class="kicker">調查完成</p>
+    <h2>書還在 3-17</h2>
+    <p>我們去三樓看過了。窗邊那一排，最下層靠右，有一本很舊的《山城夜話》，裡面還夾著那張卡片。周伯在 108 年底退休了，沒有人知道另一半的翻書聲是誰。——115 學年 怪談研究社</p>
+    <div class="summary">
+      <div><span>調查時間</span><b id="sum-time">00:00</b></div>
+      <div><span>提示次數</span><b id="sum-hints">0</b></div>
+      <div><span>答錯次數</span><b id="sum-errors">0</b></div>
+    </div>
+    <p>請把這三個數字抄到答案卡上，並寫下：<b>登記簿上的名字是誰寫的？寫出至少兩項證據，註明來自哪一份資料。</b>寫完交到櫃台。</p>
+    <p style="color:var(--muted)">主編說「另一半的翻書聲，發生在周伯不在的日子」。借一本書展的書，用線索卡打開番外檔案 X，就能找到那一天。</p>
+    <div class="btn-row">
+      <button class="go" id="open-x-from-sum">打開番外檔案 X</button>
+      <button class="btn-ghost" id="next-team">結束，換下一組</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="ov-hidden" hidden>
+  <div class="sheet dark-sheet" style="max-width:440px">
+    <h2 style="font-size:26px">番外檔案 X</h2>
+    <p>輸入「借閱者線索卡」上的四位數密碼。在櫃台借一本書展的書，就能拿到線索卡。</p>
+    <div class="codebox" id="codeX"><span></span><span></span><span></span><span></span></div>
+    <div class="keypad" id="kpX"></div>
+    <p class="msg" id="msgX"></p>
+    <div class="btn-row"><button class="go" id="openX">打開</button><button class="btn-ghost" id="cancelX">取消</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="ov-idle" hidden>
+  <div class="sheet dark-sheet" style="max-width:440px;text-align:center">
+    <h2 style="font-size:26px">還在調查嗎？</h2>
+    <p>沒有動作的話，畫面會在倒數結束後重置，讓下一組開始。</p>
+    <div class="big-count" id="idle-count">20</div>
+    <div class="btn-row" style="justify-content:center"><button class="go" id="still-here">我們還在</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="ov-staff" hidden>
+  <div class="sheet dark-sheet" style="max-width:440px">
+    <h2 style="font-size:26px">確定要重新開始？</h2>
+    <p>目前的進度、提示和答錯次數都會清除，回到開始畫面。</p>
+    <div class="btn-row"><button class="go" id="staff-reset">重新開始</button><button class="btn-ghost" id="staff-cancel">取消</button></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ---- 館員可調整的設定 ----
+  const HIDDEN_CODES = ['4821'];   // 借閱者線索卡上的密碼，可放多組
+  const COOLDOWN = 10;             // 答錯後鎖住的秒數
+  const IDLE_SEC = 180;            // 閒置多久跳出提醒
+  const IDLE_GRACE = 20;           // 提醒倒數秒數
+
+  const CHAPTERS = [
+    {name:'第一章　三樓的聲音', docs:['B','C','I']},
+    {name:'第二章　那一排書架', docs:['E','A','D','G']},
+    {name:'第三章　還書之日', docs:['J','H']},
+    {name:'第四章　照片裡的人', docs:['F']},
+    {name:'第五章　寫下名字的人', docs:['K']}
+  ];
+  const DOC_NAMES = {A:'A 舊校刊剪報',B:'B 社團日誌',C:'C 校園留言板',D:'D 借書卡與登記簿',E:'E 館員訪談逐字稿',F:'F 阿哲傳來的照片',G:'G 三樓平面圖',H:'H《山城夜話》殘頁',I:'I 行事曆',J:'J 便條',K:'K 花蓮寄來的明信片'};
+
+  const MEMOS = [
+    ['星期二，和星期四。',
+     '我把日誌攤在行事曆旁邊，一天一天對。九月十六日是星期一，我在三樓等了一整個傍晚，什麼都沒有。聲音是有規律的。',
+     '鬼會排班嗎？我決定去問一個每天都待在圖書館的人。'],
+    ['3-17。臺灣文學，窗邊那一排。',
+     '周伯說，那一排他一直幫它留著空位。登記簿上那個不存在的名字，找的就是那一排的書。',
+     '可是那本書呢？我翻到日誌最後一頁，掉出一張便條。字很眼熟，我卻想不起來是什麼時候寫的。'],
+    ['十一月四日。',
+     '民國八十五年的十一月四日，她本來應該把書還回來。那一天過去了，二十三年也過去了。',
+     '這時候阿哲傳訊息來，說他拍到了「那個」。'],
+    ['學姊沒有死在三樓。星期六圖書館沒開。照片上的日期，是兩年後。',
+     '傳言一條一條拆掉之後，桌上只剩下一個問題：是誰，在登記簿上寫下了她的名字？',
+     '我把最後一樣東西也放進資料夾。寫到這裡，我其實已經不需要再寫結論了。']
+  ];
+
+  const HINTS = [
+    ['日誌只寫了日期，沒有寫星期幾。哪一份資料可以查出星期幾？',
+     '打開行事曆 I，把日誌裡「有人聽到聲音」的日子一個一個找出來。9/16 那天沒有聽到。',
+     '9/3、9/12、9/19 分別是星期二、星期四、星期四。'],
+    ['借書卡上的索書號被遮住了一個數字。平面圖 G 上有分類號對照表。',
+     '8□3 在對照表裡只有一種可能。校刊和訪談都提到林秋月常坐在哪一區。',
+     '863 是臺灣文學，在 3-17。留言板的帳號 tsa̍p-tshit 念起來是台語的「十七」，日誌 9/19 被塗黑的也是「七」。'],
+    ['先照便條 J 的「頁－行－字」，到殘頁 H 去數。標點符號不算字。',
+     '四個字是「還書之日」。便條說它「也印在她的卡片上」。去看借書卡，正面和背面都要看。',
+     '借出日 85.10.21，借期十四天、借出當日不計，十月有 31 天。校刊上的「十一月十日」是名單截止日，不是答案。'],
+    ['每一條說法，都找一份資料來驗證它。',
+     '圖書館星期幾開放？校刊怎麼說林同學？',
+     '照片 F 有「檔案資訊」可以看，也看看阿哲後來傳的訊息。'],
+    ['把登記簿上的名字，跟借書卡上的名字一筆一筆比對。',
+     '「秌」是「秋」的異體字。整份檔案裡，還有誰的名字也這樣寫？',
+     '明信片 K 是寄給誰的？再看看訪談最後，周伯說了什麼之後，訪問者就想跳過？']
+  ];
+
+  const BOOK = [
+    {no:12, lines:['山城的雨，總是從傍晚開始下。','阿嬤說，雨夜不要出門，','因為巷口那盞燈下，會站著一個人。','他不說話，只是一直在等。','有人說，他在等一個不肯還的人；','也有人說，他自己才是那個沒還的人。','雨停的時候，燈下就空了。']},
+    {no:47, lines:['那年夏天，我在舊書攤找到一本沒有封面的書。','書頁泛黃，空白處有人寫了一行字：','「讀到這裡的人，請替我把它送回去。」','我翻遍整本書，找不到它原本屬於誰。','只有最後一頁，蓋著一個褪色的章。','章上的字已經模糊，只看得出「圖書館之印」。']},
+    {no:88, lines:['後來，我把那本書帶回了山城。','巷口的燈還在，燈下沒有人。','我把書放在燈下的石階上，轉身離開。','第二天早上，書不見了，','石階上留著一行用粉筆寫的字：','「謝謝你，在約好的那一日之前趕到。」']}
+  ];
+
+  const S = {started:false,t0:0,tEnd:0,hints:0,errors:0,ch:0,solved:[false,false,false,false,false],hintLv:[0,0,0,0,0],until:[0,0,0,0,0],
+    sel0:new Set(),sel1:null,code2:'',sel3:new Set(),sel4:null,codeX:'',xOpen:false,done:false,last:Date.now(),idle:false,idleLeft:IDLE_GRACE,page:0,pendingCh:null};
+
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  const pad = n => String(n).padStart(2,'0');
+  const fmt = ms => { const s = Math.max(0, Math.floor(ms/1000)); return pad(Math.floor(s/60)) + ':' + pad(s%60); };
+  const show = id => { $(id).hidden = false; };
+  const hide = id => { $(id).hidden = true; };
+
+  // ---- chapters & drawer ----
+  function applyChapter(){
+    $$('.file[data-ch]').forEach(f => { f.disabled = +f.dataset.ch > S.ch; });
+    $$('.ch-head[data-chhead]').forEach(h => h.classList.toggle('open', +h.dataset.chhead <= S.ch));
+    $$('.lock-tab').forEach(t => {
+      const i = +t.dataset.lock;
+      t.disabled = i > S.ch;
+      const sm = t.querySelector('small');
+      sm.textContent = S.solved[i] ? '已解' : (i === S.ch ? '調查中' : '未開放');
+      t.classList.toggle('done', S.solved[i]);
+    });
+    $('#chapter-name').textContent = S.done ? '調查完成' : CHAPTERS[S.ch].name;
+  }
+
+  function openDoc(id){
+    if(id==='X' && !S.xOpen){ S.codeX=''; drawCode('#codeX',''); $('#msgX').textContent=''; show('#ov-hidden'); return; }
+    $$('.doc').forEach(d => d.hidden = d.id !== 'doc-'+id);
+    $$('.file').forEach(f => {
+      const on = f.dataset.doc===id;
+      f.setAttribute('aria-current', on ? 'true' : 'false');
+      if(on) f.classList.add('visited');
+    });
+    $('#viewer').scrollTop = 0;
+    if(window.innerWidth <= 1180) $('#viewer').scrollIntoView({block:'start'});
+  }
+  $$('.file').forEach(b => b.addEventListener('click', () => openDoc(b.dataset.doc)));
+
+  $('#flip').addEventListener('click', () => {
+    const toBack = $('#card-back').hidden;
+    $('#card-back').hidden = !toBack; $('#card-front').hidden = toBack;
+    $('#flip').textContent = toBack ? '翻回正面' : '翻到背面';
+  });
+  $('#exif-btn').addEventListener('click', () => {
+    const open = $('#exif').hidden;
+    $('#exif').hidden = !open; $('#exif-btn').setAttribute('aria-expanded', String(open));
+    $('#exif-btn').textContent = open ? '收起檔案資訊' : '查看檔案資訊';
+  });
+
+  (function(){ const w=$('#wave'); let h=''; for(let i=0;i<70;i++){ const v=8+Math.round(26*Math.abs(Math.sin(i*0.7)*Math.cos(i*0.23))); h+='<i style="height:'+v+'px"></i>'; } w.innerHTML=h; })();
+  (function(){ let h=''; for(let i=1;i<=20;i++){ h+='<div>3-'+pad(i)+'</div>'; } $('#map-shelves').innerHTML=h; })();
+
+  function drawBook(){
+    const p = BOOK[S.page];
+    $('#book').innerHTML = '<div class="pg"><span>山城夜話</span><span>'+p.no+'</span></div><div class="book-lines">' + p.lines.map(l => '<div class="book-line">'+l+'</div>').join('') + '</div>';
+    $('#pg-no').textContent = (S.page+1) + ' / ' + BOOK.length;
+    $('#pg-prev').disabled = S.page===0; $('#pg-next').disabled = S.page===BOOK.length-1;
+  }
+  $('#pg-prev').addEventListener('click', () => { if(S.page>0){S.page--; drawBook();} });
+  $('#pg-next').addEventListener('click', () => { if(S.page<BOOK.length-1){S.page++; drawBook();} });
+  drawBook();
+
+  (function(){
+    const EV = {'2019-9-13':['中秋節',1],'2019-9-28':['教師節',0],'2019-10-10':['國慶日',1],'2019-10-15':['段考',0],'2019-10-16':['段考',0]};
+    function cal(y,m,title){
+      const first = new Date(y,m-1,1).getDay(); const days = new Date(y,m,0).getDate();
+      let h = '<table class="cal"><caption>'+title+'</caption><thead><tr>' + ['日','一','二','三','四','五','六'].map(d=>'<th>'+d+'</th>').join('') + '</tr></thead><tbody><tr>';
+      for(let i=0;i<first;i++) h+='<td></td>';
+      for(let d=1; d<=days; d++){
+        const wd = (first + d - 1) % 7; const ev = EV[y+'-'+m+'-'+d];
+        let cls = (wd===0||wd===6) ? 'we' : ''; if(ev && ev[1]) cls = 'off';
+        h += '<td class="'+cls+'">'+d+(ev?'<span class="ev">'+ev[0]+'</span>':'')+'</td>';
+        if(wd===6 && d<days) h+='</tr><tr>';
+      }
+      const tail = (7 - ((first+days)%7))%7; for(let i=0;i<tail;i++) h+='<td></td>';
+      return h + '</tr></tbody></table>';
+    }
+    $('#cals').innerHTML = cal(2019,9,'108 年 9 月') + cal(2019,10,'108 年 10 月');
+  })();
+
+  // ---- locks ----
+  function selectLock(i){
+    $$('.lock-tab').forEach(t => t.setAttribute('aria-selected', String(+t.dataset.lock===i)));
+    $$('.lock').forEach(l => l.hidden = +l.dataset.lock !== i);
+  }
+  $$('.lock-tab').forEach(t => t.addEventListener('click', () => { if(!t.disabled) selectLock(+t.dataset.lock); }));
+
+  (function(){ let h=''; for(let i=1;i<=20;i++){ const v='3-'+pad(i); h+='<button class="chip" data-v="'+v+'">'+v+'</button>'; } $('#shelf-grid').innerHTML=h; })();
+  $$('.chip').forEach(c => c.setAttribute('aria-pressed','false'));
+
+  function single(container, key, lock){
+    $(container).addEventListener('click', e => {
+      const b = e.target.closest('.chip'); if(!b || S.solved[lock]) return;
+      $$(container+' .chip').forEach(c => c.setAttribute('aria-pressed', String(c===b)));
+      S[key] = b.dataset.v;
+    });
+  }
+  function multi(container, key, lock, counter){
+    $(container).addEventListener('click', e => {
+      const b = e.target.closest('.chip'); if(!b || S.solved[lock]) return;
+      const v = b.dataset.v, set = S[key];
+      if(set.has(v)) set.delete(v); else set.add(v);
+      b.setAttribute('aria-pressed', String(set.has(v)));
+      if(counter) $(counter).textContent = set.size;
+    });
+  }
+  multi('#week-grid','sel0',0);
+  single('#shelf-grid','sel1',1);
+  multi('#claims','sel3',3,'#claim-count');
+  single('#suspects','sel4',4);
+
+  function drawCode(sel, code){ $$(sel+' span').forEach((s,i) => s.textContent = code[i] || ''); }
+  function keypad(sel, onKey){
+    const keys = ['1','2','3','4','5','6','7','8','9','清除','0','⌫'];
+    $(sel).innerHTML = keys.map(k => '<button data-k="'+k+'"'+(k==='⌫'?' aria-label="刪除一格"':'')+'>'+k+'</button>').join('');
+    $(sel).addEventListener('click', e => { const b = e.target.closest('button'); if(b) onKey(b.dataset.k); });
+  }
+  function edit(code, k){ if(k==='清除') return ''; if(k==='⌫') return code.slice(0,-1); return code.length<4 ? code+k : code; }
+  keypad('#kp2', k => { if(S.solved[2]) return; S.code2 = edit(S.code2,k); drawCode('#code2', S.code2); });
+  keypad('#kpX', k => { S.codeX = edit(S.codeX,k); drawCode('#codeX', S.codeX); });
+
+  function msg(i, text, kind){ const m = $('[data-msg="'+i+'"]'); m.textContent = text; m.className = 'msg' + (kind?' '+kind:''); }
+
+  const CHECKS = [
+    () => S.sel0.size===2 && S.sel0.has('2') && S.sel0.has('4'),
+    () => S.sel1 === '3-17',
+    () => S.code2 === '1104',
+    () => S.sel3.size===3 && S.sel3.has('f1') && S.sel3.has('f2') && S.sel3.has('f3'),
+    () => S.sel4 === 'chen'
+  ];
+  const READY = [
+    () => S.sel0.size===2 ? '' : '請剛好選兩天。',
+    () => S.sel1 ? '' : '先點選一個書架。',
+    () => S.code2.length===4 ? '' : '請輸入四位數。',
+    () => S.sel3.size===3 ? '' : '請剛好選三條。',
+    () => S.sel4 ? '' : '先選一個人。'
+  ];
+  const WRONG = ['日子對不上。','不是這個書架。','密碼不對。','還有假的說法沒有找出來，或選錯了真的。','資料裡的證據不支持這個人。'];
+  const SOLVED_TEXT = ['星期二、星期四','3-17　臺灣文學，窗邊','1104　應還日 85 年 11 月 4 日','「死在三樓」「星期六的聲音」「照片的日期」是假的','陳映秌'];
+
+  $$('[data-check]').forEach(b => b.addEventListener('click', () => {
+    const i = +b.dataset.check;
+    if(S.solved[i] || Date.now() < S.until[i]) return;
+    const notReady = READY[i](); if(notReady) return msg(i, notReady, 'bad');
+    if(CHECKS[i]()){
+      S.solved[i] = true;
+      const sec = $('.lock[data-lock="'+i+'"]');
+      sec.querySelectorAll('.chip,.keypad button,.go').forEach(x => x.disabled = true);
+      const ban = document.createElement('div'); ban.className='solved-banner'; ban.textContent='已解開　'+SOLVED_TEXT[i];
+      sec.insertBefore(ban, sec.children[2]);
+      msg(i,'鎖打開了。','ok');
+      updateStats();
+      if(i === 4){ S.done = true; S.tEnd = Date.now(); applyChapter(); setTimeout(() => show('#ov-letter'), 800); }
+      else setTimeout(() => openMemo(i), 700);
+    } else {
+      S.errors++; S.until[i] = Date.now() + COOLDOWN*1000; updateStats();
+      const sec = $('.lock[data-lock="'+i+'"]'); sec.classList.remove('shake'); void sec.offsetWidth; sec.classList.add('shake');
+      msg(i, WRONG[i] + ' 再看看資料。', 'bad');
+      coolTick();
+    }
+  }));
+
+  function openMemo(i){
+    $('#memo-kicker').textContent = '編輯手記　' + CHAPTERS[i].name + '之後';
+    $('#memo-body').innerHTML = MEMOS[i].map(p => '<p>'+p+'</p>').join('');
+    $('#memo-new').innerHTML = CHAPTERS[i+1].docs.map(d => '<span>'+DOC_NAMES[d]+'</span>').join('');
+    S.pendingCh = i+1;
+    show('#ov-memo');
+  }
+  $('#memo-go').addEventListener('click', () => {
+    hide('#ov-memo');
+    S.ch = S.pendingCh; applyChapter(); selectLock(S.ch);
+    openDoc(CHAPTERS[S.ch].docs[0]);
+    const v = $('#viewer'); v.classList.remove('flicker'); void v.offsetWidth; v.classList.add('flicker');
+  });
+
+  $$('[data-hint]').forEach(b => b.addEventListener('click', () => {
+    const i = +b.dataset.hint; if(S.hintLv[i] >= 3) return;
+    S.hintLv[i]++; S.hints++;
+    const li = document.createElement('li'); li.innerHTML = '<b>'+S.hintLv[i]+'</b>' + HINTS[i][S.hintLv[i]-1];
+    $('[data-hints="'+i+'"]').appendChild(li);
+    if(S.hintLv[i]>=3){ b.disabled = true; b.textContent = '提示已用完'; }
+    updateStats();
+  }));
+
+  function coolTick(){
+    $$('[data-check]').forEach(b => {
+      const i = +b.dataset.check; if(S.solved[i]) return;
+      const left = Math.ceil((S.until[i] - Date.now())/1000);
+      if(left > 0){ b.disabled = true; b.textContent = '鎖住中… ' + left + ' 秒'; }
+      else if(b.disabled){ b.disabled = false; b.textContent = '確認'; }
+    });
+  }
+  function updateStats(){
+    $('#st-hints').textContent = S.hints; $('#st-errors').textContent = S.errors;
+    $('#st-locks').textContent = S.solved.filter(Boolean).length + '/5';
+  }
+
+  // ---- overlays ----
+  $('#start').addEventListener('click', () => { S.started = true; S.t0 = Date.now(); S.last = Date.now(); hide('#ov-intro'); applyChapter(); openDoc('B'); });
+  $('#to-summary').addEventListener('click', () => {
+    $('#sum-time').textContent = fmt(S.tEnd - S.t0); $('#sum-hints').textContent = S.hints; $('#sum-errors').textContent = S.errors;
+    hide('#ov-letter'); show('#ov-summary');
+  });
+  $('#open-x-from-sum').addEventListener('click', () => { hide('#ov-summary'); openDoc('X'); });
+  $('#next-team').addEventListener('click', () => location.reload());
+  $('#cancelX').addEventListener('click', () => hide('#ov-hidden'));
+  $('#openX').addEventListener('click', () => {
+    if(HIDDEN_CODES.includes(S.codeX)){
+      S.xOpen = true; hide('#ov-hidden');
+      $('#file-x').classList.remove('locked'); $('#file-x-name').textContent = '周伯的值班日誌';
+      openDoc('X');
+      const v = $('#viewer'); v.classList.remove('flicker'); void v.offsetWidth; v.classList.add('flicker');
+    } else { $('#msgX').textContent = '密碼不對。請確認借閱者線索卡上的四位數。'; $('#msgX').className = 'msg bad'; }
+  });
+  $('#still-here').addEventListener('click', () => { S.idle = false; S.last = Date.now(); hide('#ov-idle'); });
+
+  let taps = [];
+  $('#seal').addEventListener('click', () => {
+    const now = Date.now(); taps = taps.filter(t => now - t < 3000); taps.push(now);
+    if(taps.length >= 5){ taps = []; show('#ov-staff'); }
+  });
+  $('#restart').addEventListener('click', () => show('#ov-staff'));
+  $('#staff-reset').addEventListener('click', () => location.reload());
+  $('#staff-cancel').addEventListener('click', () => hide('#ov-staff'));
+
+  ['pointerdown','keydown'].forEach(ev => document.addEventListener(ev, () => { if(!S.idle) S.last = Date.now(); }, true));
+
+  setInterval(() => {
+    if(!S.started) return;
+    $('#st-time').textContent = fmt((S.done ? S.tEnd : Date.now()) - S.t0);
+    coolTick();
+    if(!S.idle && Date.now() - S.last > IDLE_SEC*1000){ S.idle = true; S.idleLeft = IDLE_GRACE; $('#idle-count').textContent = S.idleLeft; show('#ov-idle'); }
+    else if(S.idle){ S.idleLeft--; $('#idle-count').textContent = Math.max(0,S.idleLeft); if(S.idleLeft <= 0) location.reload(); }
+  }, 1000);
+
+  applyChapter();
+  openDoc('B');
+})();
+</script>
+
+</body>
+</html>
